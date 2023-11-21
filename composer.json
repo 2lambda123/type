@@ -1,6 +1,6 @@
 {
-    "name": "extended-type-system/type",
-    "description": "PHP Extended Type System • Type",
+    "name": "typhoon/type",
+    "description": "Typhoon Type",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -13,22 +13,22 @@
         "php": "^8.1"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.30.2",
-        "friendsofphp/php-cs-fixer": "^3.14.4",
-        "phpyh/coding-standard": "^2.0.0",
-        "vimeo/psalm": "^5.7.7"
+        "ergebnis/composer-normalize": "^2.36.0",
+        "friendsofphp/php-cs-fixer": "^3.26.1",
+        "phpyh/coding-standard": "^2.5.0",
+        "vimeo/psalm": "^5.15.0"
     },
     "autoload": {
         "psr-4": {
-            "ExtendedTypeSystem\\": "src/"
+            "Typhoon\\Type\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "ExtendedTypeSystem\\": "tests/"
+            "Typhoon\\Type\\": "tests/psalm/"
         },
         "files": [
-            "tests/Type/functions.php"
+            "tests/psalm/functions.php"
         ]
     },
     "config": {

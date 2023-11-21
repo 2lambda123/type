@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ExtendedTypeSystem;
+namespace Typhoon\Type;
 
 /**
- * This interface must not be implemented outside ExtendedTypeSystem!
- *
- * @psalm-api
+ * @api
  * @psalm-immutable
  * @template-covariant TType
  */
