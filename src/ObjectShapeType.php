@@ -10,27 +10,26 @@ namespace Typhoon\Type;
  * @template-covariant TObject of object
  * @implements Type<TObject>
  */
-final class StaticType implements Type
+final class ObjectShapeType implements Type
 {
     /**
-     * @var list<Type>
+     * @var array<string, Property>
      */
-    public readonly array $templateArguments;
+    public readonly array $properties;
 
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @no-named-arguments
-     * @param list<Type> $templateArguments
+     * @param array<string, Property> $properties
      */
     public function __construct(
-        array $templateArguments = [],
+        array $properties = [],
     ) {
-        $this->templateArguments = $templateArguments;
+        $this->properties = $properties;
     }
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitStatic($this);
+        return $visitor->visitObjectShape($this);
     }
 }

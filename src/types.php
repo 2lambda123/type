@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Type;
 
+use Psalm\Type\Atomic\TIntMask;
+
 /**
  * @api
  */
@@ -26,6 +28,8 @@ final class types
     public const enumString = EnumStringType::type;
     public const traitString = TraitStringType::type;
     public const nonEmptyString = NonEmptyStringType::type;
+    public const truthyString = TruthyString::type;
+    public const nonFalsyString = TruthyString::type;
     public const string = StringType::type;
     public const numeric = NumericType::type;
     public const scalar = ScalarType::type;
@@ -79,6 +83,28 @@ final class types
     {
         /** @var IntRangeType<positive-int> */
         return new IntRangeType(1);
+    }
+
+    /**
+     * @psalm-pure
+     * @no-named-arguments
+     * @param int<0, max> $int
+     * @param int<0, max> ...$ints
+     */
+    public static function intMask(int $int, int ...$ints): IntMaskType
+    {
+        return new IntMaskType([$int, ...$ints]);
+    }
+
+    /**
+     * @psalm-pure
+     * @template TIntMask of positive-int
+     * @param Type<TIntMask> $type
+     * @return IntMaskOfType<TIntMask>
+     */
+    public static function intMaskOf(Type $type): IntMaskOfType
+    {
+        return new IntMaskOfType($type);
     }
 
     /**
@@ -144,6 +170,17 @@ final class types
 
     /**
      * @psalm-pure
+     * @template TClass of class-string
+     * @param TClass $class
+     * @return ClassStringLiteralType<TClass>
+     */
+    public static function classStringLiteral(string $class): ClassStringLiteralType
+    {
+        return new ClassStringLiteralType($class);
+    }
+
+    /**
+     * @psalm-pure
      * @template TObject of object
      * @param Type<TObject> $type
      * @return NamedClassStringType<TObject>
@@ -185,14 +222,14 @@ final class types
 
     /**
      * @psalm-pure
-     * @param array<Type|ShapeElement> $elements
+     * @param array<Type|ArrayElement> $elements
      */
-    public static function shape(array $elements = [], bool $sealed = true): ShapeType
+    public static function arrayShape(array $elements = [], bool $sealed = true): ArrayShapeType
     {
-        return new ShapeType(
+        return new ArrayShapeType(
             array_map(
-                static fn (Type|ShapeElement $element): ShapeElement => $element instanceof Type
-                    ? new ShapeElement($element)
+                static fn (Type|ArrayElement $element): ArrayElement => $element instanceof Type
+                    ? new ArrayElement($element)
                     : $element,
                 $elements,
             ),
@@ -202,33 +239,13 @@ final class types
 
     /**
      * @psalm-pure
-     * @param array<Type|ShapeElement> $elements
-     */
-    public static function unsealedShape(array $elements = []): ShapeType
-    {
-        return self::shape($elements, false);
-    }
-
-    /**
-     * @psalm-pure
      * @template TType
      * @param Type<TType> $type
-     * @return ShapeElement<TType>
+     * @return ArrayElement<TType>
      */
-    public static function element(Type $type, bool $optional): ShapeElement
+    public static function arrayElement(Type $type, bool $optional = false): ArrayElement
     {
-        return new ShapeElement($type, $optional);
-    }
-
-    /**
-     * @psalm-pure
-     * @template TType
-     * @param Type<TType> $type
-     * @return ShapeElement<TType>
-     */
-    public static function optional(Type $type): ShapeElement
-    {
-        return new ShapeElement($type, true);
+        return new ArrayElement($type, $optional);
     }
 
     /**
@@ -284,6 +301,28 @@ final class types
 
     /**
      * @psalm-pure
+     * @param array<string, Type|Property> $properties
+     */
+    public static function objectShape(array $properties = []): ObjectShapeType
+    {
+        return new ObjectShapeType(
+            array_map(
+                static fn (Type|Property $property): Property => $property instanceof Type ? new Property($property) : $property,
+                $properties,
+            ),
+        );
+    }
+
+    /**
+     * @psalm-pure
+     */
+    public static function prop(Type $type, bool $optional = false): Property
+    {
+        return new Property($type, $optional);
+    }
+
+    /**
+     * @psalm-pure
      * @no-named-arguments
      * @template TObject of object
      * @param class-string<TObject> $class
@@ -297,13 +336,10 @@ final class types
     /**
      * @psalm-pure
      * @no-named-arguments
-     * @template TObject of object
-     * @param class-string<TObject> $declaringClass
-     * @return StaticType<TObject>
      */
-    public static function static(string $declaringClass, Type ...$templateArguments): StaticType
+    public static function static(Type ...$templateArguments): StaticType
     {
-        return new StaticType($declaringClass, $templateArguments);
+        return new StaticType($templateArguments);
     }
 
     /**
@@ -315,28 +351,6 @@ final class types
     public static function param(Type $type = self::mixed, bool $hasDefault = false, bool $variadic = false): Parameter
     {
         return new Parameter($type, $hasDefault, $variadic);
-    }
-
-    /**
-     * @psalm-pure
-     * @template TType
-     * @param Type<TType> $type
-     * @return Parameter<TType>
-     */
-    public static function defaultParam(Type $type = self::mixed): Parameter
-    {
-        return new Parameter($type, true);
-    }
-
-    /**
-     * @psalm-pure
-     * @template TType
-     * @param Type<TType> $type
-     * @return Parameter<TType>
-     */
-    public static function variadicParam(Type $type = self::mixed): Parameter
-    {
-        return new Parameter($type, variadic: true);
     }
 
     /**
@@ -424,33 +438,19 @@ final class types
 
     /**
      * @psalm-pure
-     * @param class-string $class
      * @param non-empty-string $name
      */
-    public static function classTemplate(string $class, string $name): ClassTemplateType
+    public static function template(string $name): TemplateType
     {
-        return new ClassTemplateType($class, $name);
+        return new TemplateType($name);
     }
 
     /**
      * @psalm-pure
-     * @param class-string $class
-     * @param non-empty-string $method
-     * @param non-empty-string $name
      */
-    public static function methodTemplate(string $class, string $method, string $name): MethodTemplateType
+    public static function conditional(Argument|TemplateType $subject, Type $is, Type $if, Type $else): ConditionalType
     {
-        return new MethodTemplateType($class, $method, $name);
-    }
-
-    /**
-     * @psalm-pure
-     * @param callable-string $function
-     * @param non-empty-string $name
-     */
-    public static function functionTemplate(string $function, string $name): FunctionTemplateType
-    {
-        return new FunctionTemplateType($function, $name);
+        return new ConditionalType($subject, $is, $if, $else);
     }
 
     /**
@@ -486,6 +486,15 @@ final class types
     public static function union(Type $type1, Type $type2, Type ...$moreTypes): UnionType
     {
         return new UnionType([$type1, $type2, ...$moreTypes]);
+    }
+
+    /**
+     * @psalm-pure
+     * @param non-empty-string $name
+     */
+    public function arg(string $name): Argument
+    {
+        return new Argument($name);
     }
 }
 

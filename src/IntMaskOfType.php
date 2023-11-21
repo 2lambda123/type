@@ -7,27 +7,29 @@ namespace Typhoon\Type;
 /**
  * @api
  * @psalm-immutable
- * @template-covariant TType
+ * @template-covariant TIntMask of positive-int
+ * @implements Type<TIntMask>
  */
-final class ShapeElement
+final class IntMaskOfType implements Type
 {
     /**
-     * @var Type<TType>
+     * @var Type<TIntMask>
      */
     public readonly Type $type;
-
-    public readonly bool $optional;
 
     /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @param Type<TType> $type
+     * @param Type<TIntMask> $type
      */
     public function __construct(
         Type $type,
-        bool $optional = false,
     ) {
-        $this->optional = $optional;
         $this->type = $type;
+    }
+
+    public function accept(TypeVisitor $visitor): mixed
+    {
+        return $visitor->visitIntMaskOf($this);
     }
 }

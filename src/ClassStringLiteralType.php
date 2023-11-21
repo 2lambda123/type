@@ -7,37 +7,29 @@ namespace Typhoon\Type;
 /**
  * @api
  * @psalm-immutable
- * @template-covariant TType
- * @implements Type<TType>
+ * @template-covariant TClass of class-string
+ * @implements Type<TClass>
  */
-final class ClassTemplateType implements Type
+final class ClassStringLiteralType implements Type
 {
     /**
-     * @var class-string
+     * @var TClass
      */
     public readonly string $class;
 
     /**
-     * @var non-empty-string
-     */
-    public readonly string $name;
-
-    /**
      * @internal
      * @psalm-internal Typhoon\Type
-     * @param class-string $class
-     * @param non-empty-string $name
+     * @param TClass $class
      */
     public function __construct(
         string $class,
-        string $name,
     ) {
-        $this->name = $name;
         $this->class = $class;
     }
 
     public function accept(TypeVisitor $visitor): mixed
     {
-        return $visitor->visitClassTemplate($this);
+        return $visitor->visitClassStringLiteral($this);
     }
 }

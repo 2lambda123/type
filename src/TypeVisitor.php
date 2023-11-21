@@ -39,6 +39,12 @@ interface TypeVisitor
     public function visitIntRange(IntRangeType $type): mixed;
 
     /** @return TReturn */
+    public function visitIntMask(IntMaskType $type): mixed;
+
+    /** @return TReturn */
+    public function visitIntMaskOf(IntMaskOfType $type): mixed;
+
+    /** @return TReturn */
     public function visitInt(IntType $type): mixed;
 
     /** @return TReturn */
@@ -55,6 +61,9 @@ interface TypeVisitor
 
     /** @return TReturn */
     public function visitNumericString(NumericStringType $type): mixed;
+
+    /** @return TReturn */
+    public function visitClassStringLiteral(ClassStringLiteralType $type): mixed;
 
     /** @return TReturn */
     public function visitNamedClassString(NamedClassStringType $type): mixed;
@@ -78,6 +87,9 @@ interface TypeVisitor
     public function visitNonEmptyString(NonEmptyStringType $type): mixed;
 
     /** @return TReturn */
+    public function visitTruthyString(TruthyString $type): mixed;
+
+    /** @return TReturn */
     public function visitString(StringType $type): mixed;
 
     /** @return TReturn */
@@ -96,7 +108,7 @@ interface TypeVisitor
     public function visitList(ListType $type): mixed;
 
     /** @return TReturn */
-    public function visitShape(ShapeType $type): mixed;
+    public function visitArrayShape(ArrayShapeType $type): mixed;
 
     /** @return TReturn */
     public function visitNonEmptyArray(NonEmptyArrayType $type): mixed;
@@ -115,6 +127,9 @@ interface TypeVisitor
 
     /** @return TReturn */
     public function visitStatic(StaticType $type): mixed;
+
+    /** @return TReturn */
+    public function visitObjectShape(ObjectShapeType $type): mixed;
 
     /** @return TReturn */
     public function visitObject(ObjectType $type): mixed;
@@ -144,13 +159,10 @@ interface TypeVisitor
     public function visitValueOf(ValueOfType $type): mixed;
 
     /** @return TReturn */
-    public function visitFunctionTemplate(FunctionTemplateType $type): mixed;
+    public function visitTemplate(TemplateType $type): mixed;
 
     /** @return TReturn */
-    public function visitClassTemplate(ClassTemplateType $type): mixed;
-
-    /** @return TReturn */
-    public function visitMethodTemplate(MethodTemplateType $type): mixed;
+    public function visitConditional(ConditionalType $type): mixed;
 
     /** @return TReturn */
     public function visitIntersection(IntersectionType $type): mixed;
